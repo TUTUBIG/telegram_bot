@@ -144,6 +144,78 @@ func handleInlineQuery(query *tgbotapi.InlineQuery) {
 	// Print to console
 	log.Printf("query %+v", query)
 
+	type InlineQueryResultInvoice struct {
+		ID                  string      `json:"id"`
+		Title               string      `json:"title"`
+		Type                string      `json:"type"`
+		InputMessageContent interface{} `json:"input_message_content"`
+	}
+
+	invoice := tgbotapi.InputInvoiceMessageContent{
+		Title:         "Digital Cars Set",
+		Description:   "This is a demonstration for telegram payment with fait currency",
+		Payload:       "sku=100",
+		ProviderToken: "2051251535:TEST:OTk5MDA4ODgxLTAwNQ",
+		Currency:      "USD",
+		Prices: []tgbotapi.LabeledPrice{
+			{
+				Label:  "1 * 🏎",
+				Amount: 111,
+			},
+			{
+				Label:  "5 * 🚗",
+				Amount: 352,
+			},
+		},
+		MaxTipAmount:        50,
+		SuggestedTipAmounts: []int{5, 10},
+		PhotoURL:            "https://pub-6c52100fa9ac41f681f0713eac878541.r2.dev/Aave.png",
+	}
+
+	result := InlineQueryResultInvoice{
+		ID:                  query.ID + "-1",
+		Title:               "Digital Cars Set",
+		Type:                "article",
+		InputMessageContent: invoice,
+	}
+
+	invoice1 := tgbotapi.InputInvoiceMessageContent{
+		Title:       "Digital Yacht",
+		Description: "This is a demonstration for telegram payment with telegram star",
+		Payload:     "sku=101",
+		Currency:    "XTR",
+		Prices: []tgbotapi.LabeledPrice{
+			{
+				Label:  "1 * 🛥️",
+				Amount: 1000,
+			},
+		},
+		SuggestedTipAmounts: []int{},
+		PhotoURL:            "https://pub-6c52100fa9ac41f681f0713eac878541.r2.dev/Aave.png",
+	}
+
+	result1 := InlineQueryResultInvoice{
+		ID:                  query.ID + "-2",
+		Title:               "Digital Yacht",
+		Type:                "article",
+		InputMessageContent: invoice1,
+	}
+
+	inlineConf := tgbotapi.InlineConfig{
+		InlineQueryID: query.ID,
+		IsPersonal:    true,
+		CacheTime:     0,
+		Results:       []interface{}{result, result1},
+	}
+
+	response, err := bot.Request(inlineConf)
+	if err != nil {
+		log.Println("error: ", err.Error())
+		return
+	}
+	if !response.Ok {
+		log.Printf("error: %+v\n", response)
+	}
 }
 
 func broadcast() {
